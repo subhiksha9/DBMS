@@ -1,0 +1,235 @@
+Consider the following database schema.
+
+Create course and student tables by adding following constraints on the attributes:
+
+Primary keys on course_id and student_id attributes.
+
+Foreign key constraint on course_id attribute of student table.
+
+Unique on course name
+
+Not null on student_name
+
+Check constraint on grade attribute of grade table. Grade should be between 5 to 10.
+
+Set default value for department attribute of course table.
+
+SOURCE CODE:
+
+create table course(course_name varchar(10) unique,
+
+course_id varchar(10),
+
+department varchar(10) default null,
+
+primary key(course_id));
+
+create table student(name varchar(15) not null,
+
+id varchar(5),
+
+course_id varchar(15),
+
+semester number(3),
+
+primary key(id),
+
+foreign key(course_id) references course);
+
+create table grade(id varchar(5),
+
+semester number(3),
+
+course varchar(15),
+
+grade varchar(5) constraint g check(grade>5 and grade<10));
+
+Write insert statements that violate the constraints specified in problem 1.
+
+SOURCE CODE:
+
+SQL> insert into course values(null,null,'cse');
+
+insert into course values(null,null,'cse')
+
+            *
+
+ERROR at line 1:
+
+ORA-01400: cannot insert NULL into ("Y20CS127"."COURSE"."COURSE_ID")
+
+SQL> insert into student values('yamuna','78','45',4);
+
+insert into student values('yamuna','78','45',4)
+
+*
+
+ERROR at line 1:
+
+ORA-00001: unique constraint (Y20CS127.SYS_C00176708) violated
+
+SQL> insert into grade values('78',4,'cs','5');
+
+insert into grade values('78',4,'cs','5')
+
+*
+
+ERROR at line 1:
+
+ORA-02290: check constraint (Y20CS127.G) violated
+
+Write update statements that violate the constraints specified in problem 1.
+
+SOURCE CODE:
+
+SQL> update course
+
+  2  set course_id='56'
+
+  3  where course_name='ml';
+
+update course
+
+*
+
+ERROR at line 1:
+
+ORA-00001: unique constraint (Y20CS127.SYS_C00176667) violated
+
+SQL> update student
+
+  2  set course_id='90'
+
+  3  where name='ramya';
+
+update student
+
+*
+
+ERROR at line 1:
+
+ORA-02291: integrity constraint (Y20CS127.SYS_C00176709) violated - parent key
+
+not found
+
+SQL> update grade 
+
+  2  set grade='10'
+
+  3  where id='90';
+
+update grade
+
+*
+
+ERROR at line 1:
+
+ORA-02290: check constraint (Y20CS127.G) violated
+
+Write delete statements that violate the constraints specified in problem 1.
+
+SOURCE CODE:
+
+SQL> delete from course
+
+  2  where course_id='45';
+
+delete from course
+
+*
+
+ERROR at line 1:
+
+ORA-02292: integrity constraint (Y20CS127.SYS_C00176709) violated - child record
+
+found
+
+Drop the constraints specified in problem 1 using alter table statements.
+
+SOURCE CODE:
+
+SQL> select constraint_name,constraint_type from user_constraints
+
+  2  where table_name='STUDENT';
+
+CONSTRAINT_NAME                C
+
+------------------------------ -
+
+SYS_C00176707                  C
+
+SYS_C00176708                  P
+
+SYS_C00176709                  R
+
+SQL> alter table student drop constraint SYS_C00176709 ;
+
+Table altered.
+
+SQL> alter table student drop constraint SYS_C00176707;
+
+Table altered.
+
+SQL> alter table student drop constraint SYS_C00176708;
+
+Table altered.
+
+SQL> select constraint_name,constraint_type from user_constraints
+
+  2  where table_name='COURSE';
+
+CONSTRAINT_NAME                C
+
+------------------------------ -
+
+SYS_C00176667                  P
+
+SYS_C00176668                  U
+
+SQL> alter table course drop constraint SYS_C00176667 ;
+
+Table altered.
+
+SQL> alter table course drop constraint SYS_C00176668;
+
+Table altered.
+
+SQL> select constraint_name,constraint_type from user_constraints
+
+  2  where table_name='GRADE';
+
+CONSTRAINT_NAME                C
+
+------------------------------ -
+
+G                              C
+
+SQL> alter table grade drop constraint g;
+
+Table altered.
+
+SQL> select constraint_name,constraint_type from user_constraints
+
+  2  where table_name='GRADE';
+
+no rows selected
+
+Add the constraints specified in problem 1 using alter table statements.
+
+SOURCE CODE:
+
+SQL> alter table course add primary key(course_id);
+
+Table altered.
+
+SQL> alter table student add primary key(id);
+
+Table altered.
+
+SQL> alter table student add foreign key(course_id) references course;
+
+Table altered.
+
+SQL> alter table course add unique(course_name);
+
+Table altered.
