@@ -1,0 +1,557 @@
+Write SQL Select Statements using Aggregate Functions, Group By and Having clauses for the following queries that retrieve data from university database:
+
+Find the maximum and average capacity of buildings in the university.
+
+SQL>select max(capacity) as maximumcapacity,avg(capacity) as averagecapacity
+
+2 from classroom
+
+MAXIMUMCAPACITY AVERAGECAPACITY
+
+--------------- ---------------
+
+500 132
+
+Display the least budget of the departments.
+
+SQL> select min(budget) as minimumbudget
+
+2 from department;
+
+MINIMUMBUDGET
+
+-------------
+
+50000
+
+Find the total number of courses and credits offered by Biology department.
+
+SQL>select count(dept_name) as number_of_courses,sum(credits) as total_credits_offered
+
+2 from course
+
+3 wheredept_name=’Biology’;
+
+NUMBER_OF_COURSES TOTAL_CREDITS_OFFERED
+
+----------------- ---------------------
+
+3 11
+
+Find the average salary of instructors in the Computer Science department.
+
+SQL>select avg(salary) as average_salary
+
+2 from instructor
+
+3 wheredept_name=’Comp. Sci.’;
+
+AVERAGE_SALARY
+
+--------------
+
+77333.3333
+
+Find the total number of instructors who teach a course in the Spring 2010 semester.
+
+SQL> select count(distinct ID) as total_number_of_instructors
+
+2 from teaches
+
+3 where semester=’Spring’ and year=2010;
+
+TOTAL_NUMBER_OF_INSTRUCTORS
+
+---------------------------
+
+6
+
+Find the average salary in each department.
+
+SQL>select dept_name as department_name,avg(salary) as average_salary
+
+2 from instructor
+
+3 group by dept_name;
+
+DEPARTMENT_NAME AVERAGE_SALARY
+
+-------------------- --------------
+
+Biology 72000
+
+Comp. Sci. 77333.3333
+
+Elec. Eng. 80000
+
+Finance 85000
+
+History 61000
+
+Music 40000
+
+Physics 91000
+
+7 rows selected.
+
+Find the number of instructors in each department who teach a course in the Spring 2010 semester.
+
+SQL>select dept_name as department_name,count(distinct T.ID) as total_number_of_instructors
+
+2 from instructor I,teaches T
+
+3 where I.id=T.id and semester=’Spring’ and year=2010
+
+4 group by dept_name
+
+DEPARTMENT_NAME TOTAL_NUMBER_OF_INSTRUCTORS
+
+-------------------- ---------------------------
+
+Comp. Sci. 3
+
+Finance 1
+
+History 1
+
+Music 1
+
+Find the department name and average salary of the department for only those departments where the average salary of the instructors is more than
+
+$42,000.
+
+SQL> selectdept_name as department_name,avg(salary) as average_salary
+
+2 from instructor
+
+3 group by dept_name
+
+4 having avg(salary)>42000
+
+DEPARTMENT_NAME AVERAGE_SALARY
+
+-------------------- --------------
+
+Biology 72000
+
+Comp. Sci. 77333.3333
+
+Elec. Eng. 80000
+
+Finance 85000
+
+History 61000
+
+Physics 91000
+
+6 rows selected.
+
+For each course section offered in 2009, find the average total credits (tot_cred) of all students enrolled in the section, if the section had at least 2 students.
+
+SQL>select course_id,semester,year,sec_id,avg(tot_cred)
+
+2 fromtakes,student
+
+3 where year=2009 and takes.id=student.id
+
+4 group by course_id,semester,year,sec_id
+
+5 having count(takes.ID)>= 2
+
+COURSE_I SEMEST YEAR SEC_ID AVG(TOT_CRED)
+
+-------- ------ ---------- -------- -------------
+
+CS-101 Fall 2009 1 65
+
+CS-190 Spring 2009 2 43
+
+CS-347 Fall 2009 1 67
+
+For each department, find the maximum salary of instructors in that department. You may assume that every department has at least one instructor.
+
+SQL> select dept_name,max(salary) as maximum_salary
+
+2 from instructor
+
+3 group by dept_name;
+
+DEPT_NAME MAXIMUM_SALARY
+
+-------------------- --------------
+
+Biology 72000
+
+Comp. Sci. 92000
+
+Elec. Eng. 80000
+
+Finance 90000
+
+History 62000
+
+Music 40000
+
+Physics 95000
+
+7 rows selected.
+
+For the student with ID 12345 (or any other value), show the total number of credits scored for all courses (taken by that student). Don't display the tot_creds value from the student table, you should use SQL aggregation on courses taken by the student.
+
+SQL>select sum(credits)
+
+2 from course C,takes T
+
+3 where T.ID=12345 and T.course_id=C.course_id
+
+SUM(CREDITS)
+
+------------
+
+14
+
+Display the total credits for each of the students, along with the ID of the student; don't bother about the name of the student. (Don't display the tot_creds value from the student table, you should use SQL aggregation on courses taken by the student. For students who have not registered for any course, tot_creds should be 0)
+
+SQL>select distinct(ID),sum(credits)
+
+2 from takes T,course C
+
+3 whereT.course_id=C.course_id
+
+4 group by ID;
+
+ID SUM(CREDITS)
+
+----- ------------
+
+00128 7
+
+12345 14
+
+19991 3
+
+23121 3
+
+44553 4
+
+45678 11
+
+54321 8
+
+55739 3
+
+76543 7
+
+76653 3
+
+98765 7
+
+ID SUM(CREDITS)
+
+----- ------------
+
+98988 8
+
+12rowsselected.
+
+Write nested queries for answering the following queries that retrieve data from university database:
+
+Find the total number of (distinct) students who have taken course sections taught by the instructor with ID 110011
+
+SQL> select count(distinct ID)
+
+2 from takes
+
+3 where(course_id,sec_id,semester,year)in(select course_id,sec_id,semester,year
+
+4 from teaches
+
+5 where teaches.ID= 110011)
+
+COUNT(DISTINCTID)
+
+-----------------
+
+0
+
+Find the names of all instructors whose salary is greater than at least one instructor in the Biology department
+
+SQL&gt; select name
+
+2 from instructor
+
+3 where salary&gt;some(select salary
+
+4 from instructor
+
+5 wheredept_name=&#39;Biology&#39;);
+
+NAME
+
+--------------------
+
+Wu
+
+Einstein
+
+Gold
+
+Katz
+
+Singh
+
+Brandt
+
+Kim
+
+7 rows selected.
+
+Find the departments that have the highest average salary.
+
+SQL> select dept_name
+
+2 from instructor
+
+3 group by dept_name
+
+4 havingavg(salary) >= all(select avg(salary)
+
+5 from instructor
+
+6 group by dept_name)
+
+DEPT_NAME
+
+--------------------
+
+Physics
+
+Find all the courses taught in the both the Fall 2009 and Spring 2010 semesters
+
+SQL> select distinct course_id
+
+2 from section
+
+3 where semester=’Fall’ and year=2009 and course_id in(select distinct course_id
+
+4 from section
+
+5 where semester=’Spring’and year=2010);
+
+COURSE_I
+
+--------
+
+CS-101
+
+Find all the courses taught in the Fall 2009 semester but not in the Spring 2010 semester.
+
+SQL>select distinct course_id
+
+2 from section
+
+3 where semester=’Fall’ and year=2009 and course_id not in(select distinct course_id
+
+4 from section
+
+5where semester=’Spring’ and year=2010)
+
+COURSE_I
+
+--------
+
+CS-347
+
+PHY-101
+
+Find all courses taught in both the Fall 2009 semester and in the Spring 2010 semester. (Write correlated nested Query)
+
+SQL> select distinct course_id
+
+2 from section T
+
+3 where semester=’Fall’ and year=2009 and exists(select distinct course_id
+
+4 from section S
+
+5 where semester=’Spring’ and year=2010 and S.course_id=T.course_id);
+
+COURSE_I
+
+--------
+
+CS-101
+
+Find all students who have taken all courses offered in the Biology department. (Write Correlated nested Query)
+
+SQL> select distinct S.ID,S.name
+
+2 from student S
+
+3 where not exists((select course_id
+
+4 from course
+
+5 where dept_name=’Biology’)minus(select T.course_id
+
+6 from takes T
+
+7 where S.ID=T.ID));
+
+no rows selected
+
+Find all courses that were offered at most once in 2009.
+
+	1  select course_id,count(course_id) 2  from section
+
+ 3  where year=2009 and course_id in(select course_id from section where year=2009)
+
+ 4  group by course_id
+
+ 5 having count(course_id)<=1;
+
+COURSE_I COUNT(COURSE_ID)
+
+-------- ----------------
+
+BIO-101                 1
+
+CS-101                  1
+
+CS-347                  1
+
+EE-181                  1
+
+PHY-101                 1
+
+Find all courses that were offered at least twice in 2009”
+
+SQL> select course_id 
+
+  2  from section
+
+  3  where year=2009 and course_id in(select course_id from section where year=2009)
+
+  4  group by course_id
+
+  5  having count(course_id)>=2;
+
+COURSE_I
+
+--------
+
+CS-190
+
+Find the average instructors’ salaries of those departments where the
+
+average salary is greater than $42,000.
+
+SQL> select dept_name,avg(salary)
+
+  2  from instructor
+
+  3  group by dept_name
+
+  4  having avg(salary)>42000;
+
+DEPT_NAME            AVG(SALARY)
+
+-------------------- -----------
+
+Biology                    72000
+
+Comp. Sci.            77333.3333
+
+Elec. Eng.                 80000
+
+Finance                    85000
+
+History                    61000
+
+Physics                    91000
+
+6 rows selected.
+
+Find the departments with the maximum budget.
+
+SQL> select dept_name from department where budget>=(select max(budget) from department);
+
+DEPT_NAME
+
+--------------------
+
+Finance
+
+Find the names of instructors who have not taught any course.
+
+select name from instructor where ID not in(select distinct ID from teaches);
+
+NAME
+
+--------------------
+
+Gold
+
+Califieri
+
+Singh
+
+Find the IDs and names of all students who have not taken any course offering before Spring 2009.
+
+SQL> select ID,name from student
+
+  2  where ID not in(select ID from takes where (semester='Fall' or semester='Summer') and year=2009);
+
+ID    NAME
+
+----- --------------------
+
+19991 Brandt
+
+23121 Chavez
+
+55739 Sanchez
+
+70557 Snow
+
+76653 Aoi
+
+Find the lowest, across all departments, of the per-department maximum salary computed.
+
+select max(salary) from instructor
+
+ group by dept_name
+
+ having max(salary)<=all(select max(salary) from instructor group by dept_name)
+
+MAX(SALARY)
+
+-----------
+
+      40000
+
+Display the IDs and names of the instructors who have taught all Comp. Sci. courses.
+
+SQL> select teaches.ID,name
+
+  2  from teaches,instructor
+
+  3  where course_id=all(select course_id from course where dept_name='Comp. Sci.')
+
+  4  group by teaches.ID,name;
+
+no rows selected
+
+(or)
+
+select ID,count(ID)
+
+ from takes
+
+ where course_id like'CS%'
+
+ group by ID
+
+ having count(ID)>=all(select count(course_id) from course where dept_name='Comp. Sci.')
+
+no rows selected
