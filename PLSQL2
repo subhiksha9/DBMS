@@ -1,0 +1,169 @@
+3. create or replace function incr(n number) return number as
+
+salary number;
+
+inc number;
+
+begin
+
+select sal into salary from emp where empno=n;
+
+if salary<=3000 then inc:=(0.3*salary);
+
+elsif salary<=6000 then inc:=(0.2*salary);
+
+else inc:=(0.1*salary);
+
+end if;
+
+salary:=salary+inc;
+
+RETURN salary;
+
+end;
+
+/
+
+SQL> @ C:\\Users\\exam2\\Desktop\\table.sql;
+
+Input truncated to 1 characters
+
+Function created.
+
+SQL> EXEC dbms_output.put_line('inceremented salary: '||incr(7788));
+
+inceremented salary: 3840
+
+PL/SQL procedure successfully completed.
+
+1.
+
+create or replace procedure raise_sal(no IN number) as
+
+salary number;
+
+inc number;
+
+my_exception exception;
+
+begin
+
+select sal into salary from emp where empno=no;
+
+if salary is null then raise my_exception;
+
+else 
+
+inc:=incr(no);
+
+dbms_output.put_line(inc||'is the incremented salary');
+
+end if;
+
+exception
+
+when no_data_found then dbms_output.put_line('data not found');
+
+when my_exception then dbms_output.put_line('null value occured');
+
+end;
+
+/
+
+SQL> exec raise_sal(7876);
+
+1430is the incremented salary
+
+PL/SQL procedure successfully completed.
+
+SQL> exec raise_sal(1111);
+
+data not found
+
+PL/SQL procedure successfully completed.
+
+2. 
+
+create or replace function find_sal(no number) return number as
+
+total number;
+
+begin
+
+select sum(sal) into total from emp where deptno=no;
+
+return total;
+
+end;
+
+/
+
+SQL> exec dbms_output.put_line('total salary: '||find_sal(10));
+
+total salary: 8750
+
+PL/SQL procedure successfully completed.
+
+4.
+
+create or replace procedure display as
+
+name emp.ename%type;
+
+tot emp.sal%type;
+
+cursor cur_sal is select ename,12*(sal+nvl(comm,0)) from emp;
+
+begin
+
+open cur_sal;
+
+loop
+
+fetch cur_sal into name,tot;
+
+if cur_sal%notfound then exit;
+
+else
+
+dbms_output.put_line(name||tot);
+
+end if;
+
+end loop;
+
+close cur_sal;
+
+end;
+
+/
+
+SQL> exec display;
+
+KING60000
+
+BLAKE34200
+
+CLARK29400
+
+JONES35700
+
+MARTIN31800
+
+ALLEN22800
+
+TURNER18000
+
+JAMES11400
+
+WARD21000
+
+FORD36000
+
+SMITH9600
+
+SCOTT38400
+
+ADAMS13200
+
+MILLER15600
